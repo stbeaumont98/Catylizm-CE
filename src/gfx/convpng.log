@@ -1,0 +1,64 @@
+Opened convpng.ini
+
+--- Group gfx_group_1 (C) ---
+Building Palette...
+Palette quality : 100.00%
+TranspColorIndex : 0x00
+TranspColor : 0x7C00
+52:
+ Asteroid : 100.00% (compression: 4098 -> 651 bytes) (Asteroid.c)
+ Coin : 100.00% (compression: 546 -> 153 bytes) (Coin.c)
+ Flame1 : 100.00% (compression: 27 -> 28 bytes) (Flame1.c)
+ Flame2 : 100.00% (compression: 27 -> 27 bytes) (Flame2.c)
+ Fuel : 100.00% (compression: 562 -> 156 bytes) (Fuel.c)
+ Mouse1 : 100.00% (compression: 2270 -> 325 bytes) (Mouse1.c)
+ Mouse2 : 100.00% (compression: 2270 -> 314 bytes) (Mouse2.c)
+ SpaceCat : 100.00% (compression: 772 -> 409 bytes) (SpaceCat.c)
+ SpaceCatFlipped : 100.00% (compression: 772 -> 392 bytes) (SpaceCatFlipped.c)
+ SpaceCatHead : 100.00% (compression: 291 -> 187 bytes) (SpaceCatHead.c)
+ SpaceCatHead1 : 100.00% (compression: 291 -> 185 bytes) (SpaceCatHead1.c)
+ Star1 : 100.00% (compression: 38 -> 25 bytes) (Star1.c)
+ Star2 : 100.00% (compression: 38 -> 23 bytes) (Star2.c)
+ font0 : 100.00% (compression: 74 -> 56 bytes) (font0.c)
+ font1 : 100.00% (compression: 74 -> 44 bytes) (font1.c)
+ font2 : 100.00% (compression: 74 -> 51 bytes) (font2.c)
+ font3 : 100.00% (compression: 74 -> 41 bytes) (font3.c)
+ font4 : 100.00% (compression: 74 -> 51 bytes) (font4.c)
+ font5 : 100.00% (compression: 74 -> 47 bytes) (font5.c)
+ font6 : 100.00% (compression: 74 -> 46 bytes) (font6.c)
+ font7 : 100.00% (compression: 74 -> 48 bytes) (font7.c)
+ font8 : 100.00% (compression: 74 -> 44 bytes) (font8.c)
+ font9 : 100.00% (compression: 74 -> 52 bytes) (font9.c)
+ A : 100.00% (compression: 74 -> 51 bytes) (A.c)
+ B : 100.00% (compression: 74 -> 45 bytes) (B.c)
+ C : 100.00% (compression: 74 -> 47 bytes) (C.c)
+ D : 100.00% (compression: 74 -> 48 bytes) (D.c)
+ E : 100.00% (compression: 74 -> 50 bytes) (E.c)
+ F : 100.00% (compression: 74 -> 51 bytes) (F.c)
+ G : 100.00% (compression: 74 -> 52 bytes) (G.c)
+ H : 100.00% (compression: 74 -> 46 bytes) (H.c)
+ I : 100.00% (compression: 74 -> 44 bytes) (I.c)
+ J : 100.00% (compression: 74 -> 47 bytes) (J.c)
+ K : 100.00% (compression: 74 -> 50 bytes) (K.c)
+ L : 100.00% (compression: 74 -> 46 bytes) (L.c)
+ M : 100.00% (compression: 74 -> 52 bytes) (M.c)
+ N : 100.00% (compression: 74 -> 48 bytes) (N.c)
+ O : 100.00% (compression: 74 -> 47 bytes) (O.c)
+ P : 100.00% (compression: 74 -> 46 bytes) (P.c)
+ Q : 100.00% (compression: 74 -> 50 bytes) (Q.c)
+ R : 100.00% (compression: 74 -> 46 bytes) (R.c)
+ S : 100.00% (compression: 74 -> 52 bytes) (S.c)
+ T : 100.00% (compression: 74 -> 60 bytes) (T.c)
+ U : 100.00% (compression: 74 -> 50 bytes) (U.c)
+ V : 100.00% (compression: 74 -> 49 bytes) (V.c)
+ W : 100.00% (compression: 74 -> 52 bytes) (W.c)
+ X : 100.00% (compression: 74 -> 50 bytes) (X.c)
+ Y : 100.00% (compression: 74 -> 50 bytes) (Y.c)
+ Z : 100.00% (compression: 74 -> 46 bytes) (Z.c)
+ Period : 100.00% (compression: 74 -> 37 bytes) (Period.c)
+ Colon : 100.00% (compression: 74 -> 33 bytes) (Colon.c)
+ BackColor : 100.00% (compression: 3 -> 4 bytes) (BackColor.c)
+
+Converted in 1 s
+
+Finished!
