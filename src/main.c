@@ -12,12 +12,6 @@
 
 #include "gfx\gfx_group_1.h"
 
-/* Function prototypes */
-void ResetVars(void);
-void MainMenu(void);
-void Instruction(void);
-void Game(void);
-
 int i, j;
 int oldTime, time, oneSecond, alternator = 0;
 int RL = 0;
@@ -35,248 +29,75 @@ int GameOver = 1;
 int Menu = 1;
 int Instructions = 0;
 
-gfx_image_t *Asteroid;
-gfx_image_t *Coin;
-gfx_image_t *Flame1;
-gfx_image_t *Flame2;
-gfx_image_t *Fuel;
-gfx_image_t *Mouse1;
-gfx_image_t *Mouse2;
-gfx_image_t *SpaceCat;
-gfx_image_t *SpaceCatFlipped;
-gfx_image_t *SpaceCatHead;
-gfx_image_t *SpaceCatHead1;
-gfx_image_t *Star1;
-gfx_image_t *Star2;
-gfx_image_t *font0;
-gfx_image_t *font1;
-gfx_image_t *font2;
-gfx_image_t *font3;
-gfx_image_t *font4;
-gfx_image_t *font5;
-gfx_image_t *font6;
-gfx_image_t *font7;
-gfx_image_t *font8;
-gfx_image_t *font9;
-gfx_image_t *A;
-gfx_image_t *B;
-gfx_image_t *C;
-gfx_image_t *D;
-gfx_image_t *E;
-gfx_image_t *F;
-gfx_image_t *G;
-gfx_image_t *H;
-gfx_image_t *I;
-gfx_image_t *J;
-gfx_image_t *K;
-gfx_image_t *L;
-gfx_image_t *M;
-gfx_image_t *N;
-gfx_image_t *O;
-gfx_image_t *P;
-gfx_image_t *Q;
-gfx_image_t *R;
-gfx_image_t *S;
-gfx_image_t *T;
-gfx_image_t *U;
-gfx_image_t *V;
-gfx_image_t *W;
-gfx_image_t *X;
-gfx_image_t *Y;
-gfx_image_t *Z;
-gfx_image_t *Period;
-gfx_image_t *Colon;
+gfx_image_t *Asteroid, *Coin, *Fuel, *Period, *Colon, *SpaceCat[2], *Mouse[2], *Star[2], *Flame[2], *SpaceCatHead[2], *Numbers[10], *Alphabet[26];
 
-int main(void) {
-	gfx_Begin(gfx_8bpp);
-	gfx_SetPalette(gfx_group_1_pal, sizeof(gfx_group_1_pal), 0);
-	malloc(0);
 
-	Asteroid = gfx_AllocSprite( 64, 64, malloc );
-	Coin = gfx_AllocSprite( 16, 34, malloc );
-	Flame1 = gfx_AllocSprite( 5, 5, malloc );
-	Flame2 = gfx_AllocSprite( 5, 5, malloc );
-	Fuel = gfx_AllocSprite( 28, 20, malloc );
-	Mouse1 = gfx_AllocSprite( 54, 42, malloc );
-	Mouse2 = gfx_AllocSprite( 54, 42, malloc );
-	SpaceCat = gfx_AllocSprite( 22, 35, malloc );
-	SpaceCatFlipped = gfx_AllocSprite( 22, 35, malloc );
-	SpaceCatHead = gfx_AllocSprite( 17, 17, malloc );
-	SpaceCatHead1 = gfx_AllocSprite( 17, 17, malloc );
-	Star1 = gfx_AllocSprite( 6, 6, malloc );
-	Star2 = gfx_AllocSprite( 6, 6, malloc );
-	font0 = gfx_AllocSprite( 8, 9, malloc );
-	font1 = gfx_AllocSprite( 8, 9, malloc );
-	font2 = gfx_AllocSprite( 8, 9, malloc );
-	font3 = gfx_AllocSprite( 8, 9, malloc );
-	font4 = gfx_AllocSprite( 8, 9, malloc );
-	font5 = gfx_AllocSprite( 8, 9, malloc );
-	font6 = gfx_AllocSprite( 8, 9, malloc );
-	font7 = gfx_AllocSprite( 8, 9, malloc );
-	font8 = gfx_AllocSprite( 8, 9, malloc );
-	font9 = gfx_AllocSprite( 8, 9, malloc );
-	A = gfx_AllocSprite( 8, 9, malloc );
-	B = gfx_AllocSprite( 8, 9, malloc );
-	C = gfx_AllocSprite( 8, 9, malloc );
-	D = gfx_AllocSprite( 8, 9, malloc );
-	E = gfx_AllocSprite( 8, 9, malloc );
-	F = gfx_AllocSprite( 8, 9, malloc );
-	G = gfx_AllocSprite( 8, 9, malloc );
-	H = gfx_AllocSprite( 8, 9, malloc );
-	I = gfx_AllocSprite( 8, 9, malloc );
-	J = gfx_AllocSprite( 8, 9, malloc );
-	K = gfx_AllocSprite( 8, 9, malloc );
-	L = gfx_AllocSprite( 8, 9, malloc );
-	M = gfx_AllocSprite( 8, 9, malloc );
-	N = gfx_AllocSprite( 8, 9, malloc );
-	O = gfx_AllocSprite( 8, 9, malloc );
-	P = gfx_AllocSprite( 8, 9, malloc );
-	Q = gfx_AllocSprite( 8, 9, malloc );
-	R = gfx_AllocSprite( 8, 9, malloc );
-	S = gfx_AllocSprite( 8, 9, malloc );
-	T = gfx_AllocSprite( 8, 9, malloc );
-	U = gfx_AllocSprite( 8, 9, malloc );
-	V = gfx_AllocSprite( 8, 9, malloc );
-	W = gfx_AllocSprite( 8, 9, malloc );
-	X = gfx_AllocSprite( 8, 9, malloc );
-	Y = gfx_AllocSprite( 8, 9, malloc );
-	Z = gfx_AllocSprite( 8, 9, malloc );
-	Period = gfx_AllocSprite( 8, 9, malloc );
-	Colon = gfx_AllocSprite( 8, 9, malloc );
 
-	gfx_LZDecompressSprite( Asteroid_data_compressed, Asteroid );
-	gfx_LZDecompressSprite( Coin_data_compressed, Coin );
-	gfx_LZDecompressSprite( Flame1_data_compressed, Flame1 );
-	gfx_LZDecompressSprite( Flame2_data_compressed, Flame2 );
-	gfx_LZDecompressSprite( Fuel_data_compressed, Fuel );
-	gfx_LZDecompressSprite( Mouse1_data_compressed, Mouse1 );
-	gfx_LZDecompressSprite( Mouse2_data_compressed, Mouse2 );
-	gfx_LZDecompressSprite( SpaceCat_data_compressed, SpaceCat );
-	gfx_LZDecompressSprite( SpaceCatFlipped_data_compressed, SpaceCatFlipped );
-	gfx_LZDecompressSprite( SpaceCatHead_data_compressed, SpaceCatHead );
-	gfx_LZDecompressSprite( SpaceCatHead1_data_compressed, SpaceCatHead1 );
-	gfx_LZDecompressSprite( Star1_data_compressed, Star1 );
-	gfx_LZDecompressSprite( Star2_data_compressed, Star2 );
-	gfx_LZDecompressSprite( font0_data_compressed, font0 );
-	gfx_LZDecompressSprite( font1_data_compressed, font1 );
-	gfx_LZDecompressSprite( font2_data_compressed, font2 );
-	gfx_LZDecompressSprite( font3_data_compressed, font3 );
-	gfx_LZDecompressSprite( font4_data_compressed, font4 );
-	gfx_LZDecompressSprite( font5_data_compressed, font5 );
-	gfx_LZDecompressSprite( font6_data_compressed, font6 );
-	gfx_LZDecompressSprite( font7_data_compressed, font7 );
-	gfx_LZDecompressSprite( font8_data_compressed, font8 );
-	gfx_LZDecompressSprite( font9_data_compressed, font9 );
-	gfx_LZDecompressSprite( A_data_compressed, A );
-	gfx_LZDecompressSprite( B_data_compressed, B );
-	gfx_LZDecompressSprite( C_data_compressed, C );
-	gfx_LZDecompressSprite( D_data_compressed, D );
-	gfx_LZDecompressSprite( E_data_compressed, E );
-	gfx_LZDecompressSprite( F_data_compressed, F );
-	gfx_LZDecompressSprite( G_data_compressed, G );
-	gfx_LZDecompressSprite( H_data_compressed, H );
-	gfx_LZDecompressSprite( I_data_compressed, I );
-	gfx_LZDecompressSprite( J_data_compressed, J );
-	gfx_LZDecompressSprite( K_data_compressed, K );
-	gfx_LZDecompressSprite( L_data_compressed, L );
-	gfx_LZDecompressSprite( M_data_compressed, M );
-	gfx_LZDecompressSprite( N_data_compressed, N );
-	gfx_LZDecompressSprite( O_data_compressed, O );
-	gfx_LZDecompressSprite( P_data_compressed, P );
-	gfx_LZDecompressSprite( Q_data_compressed, Q );
-	gfx_LZDecompressSprite( R_data_compressed, R );
-	gfx_LZDecompressSprite( S_data_compressed, S );
-	gfx_LZDecompressSprite( T_data_compressed, T );
-	gfx_LZDecompressSprite( U_data_compressed, U );
-	gfx_LZDecompressSprite( V_data_compressed, V );
-	gfx_LZDecompressSprite( W_data_compressed, W );
-	gfx_LZDecompressSprite( X_data_compressed, X );
-	gfx_LZDecompressSprite( Y_data_compressed, Y );
-	gfx_LZDecompressSprite( Z_data_compressed, Z );
-	
-	gfx_SetDrawBuffer();
-	ResetVars();
-	while(Menu == 1 || Instructions == 1 || GameOver == 0){
-		oldTime = time;
-		time = rtc_Time();
-		oneSecond = time - oldTime;
-		MainMenu();
-		Menu = 0;
-		Instruction();
-		Instructions = 0;
-		if(GameOver == 0)
-			Game();
-	}
-	gfx_End();
-	pgrm_CleanUp();
-	return 0;
-}
-
-gfx_image_t* SpaceCat0[2] = {
-	SpaceCat,
-	SpaceCatFlipped
+uint8_t* SpaceCat_compressed[2] = {
+	SpaceCat_data_compressed,
+	SpaceCatFlipped_data_compressed
 };
 
-gfx_image_t* Mouse[2] = {
-	Mouse1,
-	Mouse2
+uint8_t* Mouse_compressed[2] = {
+	Mouse1_data_compressed,
+	Mouse2_data_compressed
 };
 
-gfx_image_t* Star[2] = {
-	Star1,
-	Star2
+uint8_t* Star_compressed[2] = {
+	Star1_data_compressed,
+	Star2_data_compressed
 };
 
-gfx_image_t* Flame[2] = {
-	Flame1,
-	Flame2
+uint8_t* Flame_compressed[2] = {
+	Flame1_data_compressed,
+	Flame2_data_compressed
 };
 
-gfx_image_t* SpaceCatHead0[2] = {
-	SpaceCatHead,
-	SpaceCatHead1
+uint8_t* SpaceCatHead_compressed[2] = {
+	SpaceCatHead_data_compressed,
+	SpaceCatHead1_data_compressed
 };
 
-gfx_image_t* Numbers[10] = {
-	font0,
-	font1,
-	font2,
-	font3,
-	font4,
-	font5,
-	font6,
-	font7,
-	font8,
-	font9
+uint8_t* Numbers_compressed[10] = {
+	font0_data_compressed,
+	font1_data_compressed,
+	font2_data_compressed,
+	font3_data_compressed,
+	font4_data_compressed,
+	font5_data_compressed,
+	font6_data_compressed,
+	font7_data_compressed,
+	font8_data_compressed,
+	font9_data_compressed
 };
 
-gfx_image_t* Alphabet[26] = {
-	A,
-	B,
-	C,
-	D,
-	E,
-	F,
-	G,
-	H,
-	I,
-	J,
-	K,
-	L,
-	M,
-	N,
-	O,
-	P,
-	Q,
-	R,
-	S,
-	T,
-	U,
-	V,
-	W,
-	X,
-	Y,
-	Z
+uint8_t* Alphabet_compressed[26] = {
+	A_data_compressed,
+	B_data_compressed,
+	C_data_compressed,
+	D_data_compressed,
+	E_data_compressed,
+	F_data_compressed,
+	G_data_compressed,
+	H_data_compressed,
+	I_data_compressed,
+	J_data_compressed,
+	K_data_compressed,
+	L_data_compressed,
+	M_data_compressed,
+	N_data_compressed,
+	O_data_compressed,
+	P_data_compressed,
+	Q_data_compressed,
+	R_data_compressed,
+	S_data_compressed,
+	T_data_compressed,
+	U_data_compressed,
+	V_data_compressed,
+	W_data_compressed,
+	X_data_compressed,
+	Y_data_compressed,
+	Z_data_compressed
 };
 
 void PrintCustomFontH(int x, int y, char *Msg, int fontsize){
@@ -567,8 +388,8 @@ void MainMenu(){					//Main menu screen
 		PrintCustomFontH(104, 84, "START", 3);
 		PrintCustomFontH(43, 111, "HOW TO PLAY", 3);	
 		PrintCustomFontH(25, 198, "PRESS CLEAR TO QUIT", 2);
-		gfx_ScaledTransparentSprite_NoClip(SpaceCatHead0[0], Head1X, Head1Y, 2, 2);
-		gfx_ScaledTransparentSprite_NoClip(SpaceCatHead0[1], Head2X, Head2Y, 2, 2);
+		gfx_ScaledTransparentSprite_NoClip(SpaceCatHead[0], Head1X, Head1Y, 2, 2);
+		gfx_ScaledTransparentSprite_NoClip(SpaceCatHead[1], Head2X, Head2Y, 2, 2);
 		if(kb_ScanGroup(kb_group_1) == kb_2nd || kb_ScanGroup(kb_group_6) == kb_Enter){
 			if(Option == 0){
 				Menu = 0;
@@ -628,14 +449,14 @@ void Game(){
 			HealthBar = 0;
 			GameOver = 1;
 		}
-		gfx_ScaledTransparentSprite_NoClip(SpaceCat0[RL], CatX, CatY, 2, 2);
+		gfx_ScaledTransparentSprite_NoClip(SpaceCat[RL], CatX, CatY, 2, 2);
 		drawBorder();
 		gfx_SwapDraw();
 	}
 	gfx_FillScreen(0x26);
 	StarFunctions();
 	ObjectFunctions();
-	gfx_ScaledTransparentSprite_NoClip(SpaceCat0[RL], CatX, CatY, 2, 2);
+	gfx_ScaledTransparentSprite_NoClip(SpaceCat[RL], CatX, CatY, 2, 2);
 	drawBorder();
 	while(GameOver == 1 && kb_ScanGroup(kb_group_6) != kb_Clear){
 		oldTime = time;
@@ -644,7 +465,7 @@ void Game(){
 		gfx_FillScreen(0x26);
 		StarFunctions();
 		ObjectFunctions();
-		gfx_ScaledTransparentSprite_NoClip(SpaceCat0[RL], CatX, CatY, 2, 2);
+		gfx_ScaledTransparentSprite_NoClip(SpaceCat[RL], CatX, CatY, 2, 2);
 		drawBorder();
 		PrintCustomFontH(0, 89, "GAME OVER", 5);
 		PrintCustomFontH(55, 129, "PRESS ALPHA FOR", 2);
@@ -654,4 +475,99 @@ void Game(){
 		}
 		gfx_SwapDraw();
 	}
+}
+
+void decompressSprites(){
+	int i;
+	
+	malloc(0);
+	
+	Asteroid = gfx_AllocSprite( 64, 64, malloc );
+	Coin = gfx_AllocSprite( 16, 34, malloc );
+	Fuel = gfx_AllocSprite( 28, 20, malloc );
+	Period = gfx_AllocSprite( 8, 9, malloc );
+	Colon = gfx_AllocSprite( 8, 9, malloc );
+	
+	for(i = 0; i < 2; i++){
+		SpaceCat[i] = gfx_AllocSprite( 22, 35, malloc );
+		Flame[i] = gfx_AllocSprite( 5, 5, malloc );
+		Star[i] = gfx_AllocSprite( 6, 6, malloc );
+		SpaceCatHead[i] = gfx_AllocSprite( 17, 17, malloc );
+		Mouse[i] = gfx_AllocSprite( 54, 42, malloc );
+	}
+	
+	for(i = 0; i < 26; i++)
+		Alphabet[i] = gfx_AllocSprite( 8, 9, malloc );
+	
+	for(i = 0; i < 10; i++)
+		Numbers[i] = gfx_AllocSprite( 8, 9, malloc );
+	
+	
+	gfx_LZDecompressSprite( Asteroid_data_compressed, Asteroid );
+	gfx_LZDecompressSprite( Coin_data_compressed, Coin );
+	gfx_LZDecompressSprite( Fuel_data_compressed, Fuel );
+	gfx_LZDecompressSprite( Period_data_compressed, Period );
+	gfx_LZDecompressSprite( Colon_data_compressed, Colon );
+	
+	for(i = 0; i < 2; i++){
+		gfx_LZDecompressSprite( SpaceCat_compressed[i], SpaceCat[i] );
+		gfx_LZDecompressSprite( Flame_compressed[i], Flame[i] );
+		gfx_LZDecompressSprite( Star_compressed[i], Star[i] );
+		gfx_LZDecompressSprite( SpaceCatHead_compressed[i], SpaceCatHead[i] );
+		gfx_LZDecompressSprite( Mouse_compressed[i], Mouse[i] );
+	}
+	
+	for(i = 0; i < 26; i++)
+		gfx_LZDecompressSprite( Alphabet_compressed[i], Alphabet[i] );
+	
+	for(i = 0; i < 10; i++)
+		gfx_LZDecompressSprite( Numbers_compressed[i], Numbers[i] );
+	
+}
+
+void freeSprites(){
+	int i;
+	
+	free(Asteroid);
+	free(Coin);
+	free(Fuel);
+	free(Period);
+	free(Colon);
+	
+	for(i = 0; i < 2; i++){
+		free(SpaceCat[i]);
+		free(Flame[i]);
+		free(Star[i]);
+		free(SpaceCatHead[i]);
+		free(Mouse[i]);
+	}
+	
+	for(i = 0; i < 26; i++)
+		free(Alphabet[i]);
+	
+	for(i = 0; i < 10; i++)
+		free(Numbers[i]);
+}
+
+int main(void) {
+	gfx_Begin(gfx_8bpp);
+	gfx_SetPalette(gfx_group_1_pal, sizeof(gfx_group_1_pal), 0);
+	gfx_SetDrawBuffer();
+	decompressSprites();
+	ResetVars();
+	while(Menu == 1 || Instructions == 1 || GameOver == 0){
+		oldTime = time;
+		time = rtc_Time();
+		oneSecond = time - oldTime;
+		MainMenu();
+		Menu = 0;
+		Instruction();
+		Instructions = 0;
+		if(GameOver == 0)
+			Game();
+	}
+	freeSprites();
+	gfx_End();
+	pgrm_CleanUp();
+	return 0;
 }
