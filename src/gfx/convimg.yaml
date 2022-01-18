@@ -1,0 +1,32 @@
+palettes:
+  - name: palette
+    fixed-entries:
+      - color: {index: 0, r: 255, g: 0, b: 0}
+      - color: {index: 1, r: 0, g: 0, b: 0}
+      - color: {index: 2, r: 255, g: 255, b: 255}
+      - color: {index: 3, r: 128, g: 128, b: 128}
+      - color: {index: 4, r: 23, g: 23, b: 23}
+      - color: {index: 5, r: 0, g: 128, b: 0}
+    images: automatic
+
+converts:
+  - name: catylizm_sprites
+    palette: palette
+    images:
+      - big_asteroid.png
+      - small_asteroid.png
+      - gold_nugget.png
+      - fuel_cell.png
+      - full_mouse.png
+      - cat.png
+      - cat_head.png
+      - flame_1.png
+      - flame_2.png
+
+outputs:
+  - type: c
+    include-file: gfx.h
+    palettes:
+      - palette
+    converts:
+      - catylizm_sprites
