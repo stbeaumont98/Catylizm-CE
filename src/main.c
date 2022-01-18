@@ -10,564 +10,410 @@
 #include <graphx.h>
 #include <keypadc.h>
 
-#include "gfx\gfx_group_1.h"
+#include "gfx\gfx.h"
+#include "gfx\font.h"
 
-int i, j;
-int oldTime, time, oneSecond, alternator = 0;
-int RL = 0;
-int StarX[15];
-int StarY[15];
-int StarState[15];
-int CatX = 138;
-int CatY = 170;
-float FuelBar = 200, HealthBar = 200;
-int ObjectX[2], ObjectY[2], ObjectW[2], ObjectH[2], rndObject;
-int Objects[2];
-int Coins = 0;
-char ScoreBuf[10];
-int GameOver = 1;
-int Menu = 1;
-int Instructions = 0;
+#define COLOR_RED 0x00
+#define COLOR_BLACK 0x01
+#define COLOR_WHITE 0x02
+#define COLOR_GRAY 0x03
+#define COLOR_DARK_GRAY 0x04
+#define COLOR_GREEN 0x05
 
-gfx_image_t *Asteroid, *Coin, *Fuel, *Period, *Colon, *SpaceCat[2], *Mouse[2], *Star[2], *Flame[2], *SpaceCatHead[2], *Numbers[10], *Alphabet[26];
+#define OBJECT_BIG_ASTEROID 0
+#define OBJECT_SMALL_ASTEROID 1
+#define OBJECT_FUEL_CELL 2
+#define OBJECT_GOLD_NUGGET 3
+#define OBJECT_SPACE_MOUSE 4
 
+#define BIG_ASTEROID_WIDTH 32
+#define BIG_ASTEROID_HEIGHT 32
+#define SMALL_ASTEROID_WIDTH 22
+#define SMALL_ASTEROID_HEIGHT 22
+#define FUEL_CELL_WIDTH 14
+#define FUEL_CELL_HEIGHT 10
+#define GOLD_NUGGET_WIDTH 16
+#define GOLD_NUGGET_HEIGHT 16
+#define SPACE_MOUSE_WIDTH 52
+#define SPACE_MOUSE_HEIGHT 30
 
-
-uint8_t* SpaceCat_compressed[2] = {
-	SpaceCat_data_compressed,
-	SpaceCatFlipped_data_compressed
+struct Star {
+	uint16_t x;
+	uint8_t y;
+	uint8_t state;
+	uint8_t scale;
 };
 
-uint8_t* Mouse_compressed[2] = {
-	Mouse1_data_compressed,
-	Mouse2_data_compressed
+struct Object {
+	uint8_t type;
+	uint16_t x;
+	uint8_t y;
+	uint8_t width;
+	uint8_t height;
+	bool alive;
 };
 
-uint8_t* Star_compressed[2] = {
-	Star1_data_compressed,
-	Star2_data_compressed
+struct Player {
+	uint16_t x;
+	uint8_t y;
+	float health;
+	float fuel;
+	uint8_t score;
 };
 
-uint8_t* Flame_compressed[2] = {
-	Flame1_data_compressed,
-	Flame2_data_compressed
-};
+/* Function prototypes */
+void draw_text(char* text, uint8_t color, uint16_t x, uint8_t y, int scale);
+void draw_int(int i, uint8_t color, uint16_t x, uint8_t y, int scale);
+void draw_text_v(char* text, uint8_t color, uint16_t x, uint8_t y, int scale);
+void init_object(struct Object *o);
+void init_game();
+void draw_game_border();
+void draw_star(struct Star s);
+void draw_object(struct Object o);
 
-uint8_t* SpaceCatHead_compressed[2] = {
-	SpaceCatHead_data_compressed,
-	SpaceCatHead1_data_compressed
-};
-
-uint8_t* Numbers_compressed[10] = {
-	font0_data_compressed,
-	font1_data_compressed,
-	font2_data_compressed,
-	font3_data_compressed,
-	font4_data_compressed,
-	font5_data_compressed,
-	font6_data_compressed,
-	font7_data_compressed,
-	font8_data_compressed,
-	font9_data_compressed
-};
-
-uint8_t* Alphabet_compressed[26] = {
-	A_data_compressed,
-	B_data_compressed,
-	C_data_compressed,
-	D_data_compressed,
-	E_data_compressed,
-	F_data_compressed,
-	G_data_compressed,
-	H_data_compressed,
-	I_data_compressed,
-	J_data_compressed,
-	K_data_compressed,
-	L_data_compressed,
-	M_data_compressed,
-	N_data_compressed,
-	O_data_compressed,
-	P_data_compressed,
-	Q_data_compressed,
-	R_data_compressed,
-	S_data_compressed,
-	T_data_compressed,
-	U_data_compressed,
-	V_data_compressed,
-	W_data_compressed,
-	X_data_compressed,
-	Y_data_compressed,
-	Z_data_compressed
-};
-
-void PrintCustomFontH(int x, int y, char *Msg, int fontsize){
-	int i, j, k = 0;
-	char Upper[26] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-	char Num[10] = "0123456789";
-	for(j = 0; j < strlen(Msg); j++){
-		for(i = 0; i < 26; i++){
-			if(Msg[j] == Upper[i]){
-				gfx_ScaledTransparentSprite_NoClip(Alphabet[i], x + k * (7*fontsize), y, fontsize, fontsize);
-				k++;
-			}
-		}
-		for(i = 0; i < 10; i++){
-			if(Msg[j] == Num[i]){
-				gfx_ScaledTransparentSprite_NoClip(Numbers[i], x + k * (7*fontsize), y, fontsize, fontsize);
-				k++;
-			}
-		}
-		if(Msg[j] == ':'){
-			gfx_ScaledTransparentSprite_NoClip(Colon, x + k * (7*fontsize), y, fontsize, fontsize);
-			k++;
-		}
-		if(Msg[j] == '.'){
-			gfx_ScaledTransparentSprite_NoClip(Period, x + k * (7*fontsize), y, fontsize, fontsize);
-			k++;
-		}
-		if(Msg[j] == ' '){
-			k++;
-		}
-	}
-}
-
-void PrintCustomFontV(int x, int y, char *Msg, int fontsize){
-	int i, j, k = 0;
-	char Upper[26] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-	char Num[10] = "0123456789";
-	for(j = 0; j < strlen(Msg); j++){
-		for(i = 0; i < 26; i++){
-			if(Msg[j] == Upper[i]){
-				gfx_ScaledTransparentSprite_NoClip(Alphabet[i], x, y + k * (7*fontsize), fontsize, fontsize);
-				k++;
-			}
-		}
-		for(i = 0; i < 10; i++){
-			if(Msg[j] == Num[i]){
-				gfx_ScaledTransparentSprite_NoClip(Numbers[i], x, y + k * (7*fontsize), fontsize, fontsize);
-				k++;
-			}
-		}
-		if(Msg[j] == ':'){
-			gfx_ScaledTransparentSprite_NoClip(Colon, x, y + k * (7*fontsize), fontsize, fontsize);
-			k++;
-		}
-		if(Msg[j] == '.'){
-			gfx_ScaledTransparentSprite_NoClip(Period, x, y + k * (7*fontsize), fontsize, fontsize);
-			k++;
-		}
-		if(Msg[j] == ' '){
-			k++;
-		}
-	}
-}
-
-
-
-void ResetVars(){
-	srand((unsigned) rtc_Time());
-	Coins = 0;
-	FuelBar = 200;
-	HealthBar = 200;
-	for(i = 0; i < 15; i++){
-		StarX[i] = rand() % 320;
-		StarY[i] = rand() % 240;
-		StarState[i] = rand() % 2;
-	}
-	rndObject = rand() % 100;
-	for(i = 0; i < 2; i++){
-		if(rndObject >= 0 && rndObject < 25){
-			Objects[i] = 1;						//Coin
-			ObjectW[i] = 16;
-			ObjectH[i] = 34;
-		}
-		if(rndObject >= 25 && rndObject < 50){
-			Objects[i] = 2;						//Fuel
-			ObjectW[i] = 28;
-			ObjectH[i] = 20;
-		}
-		if(rndObject >= 50 && rndObject < 90){
-			Objects[i] = 3;						//Asteroid
-			ObjectW[i] = 64;
-			ObjectH[i] = 64;
-		}
-		if(rndObject >= 90 && rndObject < 100){
-			Objects[i] = 4;						//Mouse
-			ObjectW[i] = 54;
-			ObjectH[i] = 42;
-		}
-		ObjectX[i] = (rand() % 312) + 36;
-		ObjectY[i] = -500 + (250 * i);
-	}
-	GameOver = 0;
-	Menu = 1;
-	Instructions = 0;
-}
-
-void drawBorder(){					//Draw fuel bar, health bar, and the score
-	gfx_SetColor(0x11);
-	gfx_FillRectangle_NoClip(0, 0, 36, 240);
-	gfx_SetColor(0x05);
-	gfx_VertLine_NoClip(35, 0, 240);
-	gfx_SetColor(0x07);
-	gfx_VertLine_NoClip(36, 0, 240);
-	PrintCustomFontV(10, 10, "FUEL", 2);
-	gfx_SetColor(0x07);
-	gfx_FillRectangle_NoClip(11, 71, 12, 134);
-	if(FuelBar > 0){
-		gfx_SetColor(0x0E);
-		gfx_FillRectangle_NoClip(12, 72, 10, (int)(FuelBar*0.66));
-	}
-	gfx_SetColor(0x11);
-	gfx_FillRectangle_NoClip(284, 0, 36, 240);
-	gfx_SetColor(0x05);
-	gfx_VertLine_NoClip(285, 0, 240);
-	gfx_SetColor(0x07);
-	gfx_VertLine_NoClip(284, 0, 240);
-	PrintCustomFontV(294, 10, "HEALTH", 2);
-	gfx_SetColor(0x07);
-	gfx_FillRectangle_NoClip(295, 100, 12, 106);
-	if(HealthBar > 0){
-		gfx_SetColor(0x00);
-		gfx_FillRectangle_NoClip(296, 101, 10, (int)(HealthBar*0.52));
-	}
-	PrintCustomFontH(38, 222, "SCORE:", 2);
-	sprintf(ScoreBuf, "%d", Coins);
-	PrintCustomFontH(120, 222, ScoreBuf, 2);
-}
-
-void StarFunctions(){					//Draw stars
-	for(i = 0; i < 15; i++){
-		if(oneSecond == 1){
-			alternator = 1 - alternator;
-			StarState[i] = 1 - StarState[i];
-		}
-		gfx_TransparentSprite(Star[StarState[i]], StarX[i], StarY[i]);
-		if(FuelBar > 0){
-			gfx_ScaledTransparentSprite_NoClip(Flame[alternator], CatX + ((RL == 0) ? 2 : 32), CatY + 60, 2, 2);
-			StarY[i]+=12;
-			if(kb_ScanGroup(kb_group_7) == kb_Left) {
-				RL = 1;
-				StarX[i]+=4;
-			} else if(kb_ScanGroup(kb_group_7) == kb_Right) {
-				RL = 0;
-				StarX[i]-=4;
-			}
-			if(StarY[i] > 240){
-				StarX[i] = rand() % 320;
-				StarY[i] = -6;
-			}
-			FuelBar-=.0625;
-		}
-	}
-}
-
-void ObjectFunctions(){					//Draw objects and their functions
-	for(i = 0; i < 2; i++){
-		if(Objects[i] != 0){
-			if(FuelBar > 0){
-				if(kb_ScanGroup(kb_group_7) == kb_Left) {
-					ObjectX[i]+=4;
-				} else if(kb_ScanGroup(kb_group_7) == kb_Right) {
-					ObjectX[i]-=4;
-				}
-				if(ObjectY[i] < 216)
-					ObjectY[i]+=12;
-			}
-			if(ObjectY[i] >= 216){
-				ObjectY[i] = -500;
-				ObjectX[i] = (rand() % 320);
-				rndObject = rand() % 100;
-				if(rndObject >= 0 && rndObject < 15){
-					Objects[i] = 1;						//Coin
-					ObjectW[i] = 16;
-					ObjectH[i] = 34;
-				}
-				if(rndObject >= 15 && rndObject < 50){
-					Objects[i] = 2;						//Fuel
-					ObjectW[i] = 28;
-					ObjectH[i] = 20;
-				}
-				if(rndObject >= 50 && rndObject < 90){
-					Objects[i] = 3;						//Asteroid
-					ObjectW[i] = 64;
-					ObjectH[i] = 64;
-				}
-				if(rndObject >= 90 && rndObject < 100){
-					Objects[i] = 4;						//Mouse
-					ObjectW[i] = 54;
-					ObjectH[i] = 42;
-				}
-			}
-			if ((CatX < ObjectX[i] + ObjectW[i]) && (CatX + 44 > ObjectX[i]) && (CatY < ObjectY[i] + ObjectH[i]) && (70 + CatY > ObjectY[i])) {
-				switch(Objects[i]){
-				case 1:
-					Coins++;
-					break;
-				case 2:
-					FuelBar += 50;
-					break;
-				case 3:
-					HealthBar -= 50;
-					break;
-				case 4:
-					Coins += 5;
-					break;
-				}
-				ObjectY[i] = -500 + (250 * i);
-				ObjectX[i] = (rand() % 320);
-				rndObject = rand() % 100;
-				if(rndObject >= 0 && rndObject < 15){
-					Objects[i] = 1;						//Coin
-					ObjectW[i] = 16;
-					ObjectH[i] = 34;
-				}
-				if(rndObject >= 15 && rndObject < 50){
-					Objects[i] = 2;						//Fuel
-					ObjectW[i] = 28;
-					ObjectH[i] = 20;
-				}
-				if(rndObject >= 50 && rndObject < 90){
-					Objects[i] = 3;						//Asteroid
-					ObjectW[i] = 64;
-					ObjectH[i] = 64;
-				}
-				if(rndObject >= 90 && rndObject < 100){
-					Objects[i] = 4;						//Mouse
-					ObjectW[i] = 54;
-					ObjectH[i] = 42;
-				}
-			}
-			if(Objects[i] == 1){
-				gfx_TransparentSprite(Coin, ObjectX[i], (ObjectY[i] + (i * 20)));
-			}
-			if(Objects[i] == 2){
-				gfx_TransparentSprite(Fuel, ObjectX[i], (ObjectY[i] + (i * 20)));
-			}
-			if(Objects[i] == 3){
-				gfx_TransparentSprite(Asteroid, ObjectX[i], (ObjectY[i] + (i * 20)));
-			}
-			if(Objects[i] == 4){
-				gfx_TransparentSprite(Mouse[alternator], ObjectX[i], (ObjectY[i] + (i * 20)));
-			}
-		}
-	}
-	if(FuelBar > 200)
-		FuelBar = 200;
-}
-
-void MainMenu(){					//Main menu screen
-	int Head1X = 99, Head1Y = 75, Head2X = 250, Head2Y = 75, Option = 0;
-	GameOver = 1;
-	while(Menu && kb_ScanGroup(kb_group_6) != kb_Clear){
-		gfx_FillScreen(0x26);
-		oldTime = time;
-		time = rtc_Time();
-		oneSecond = time - oldTime;
-		for(i = 0; i < 15; i++){
-			if(oneSecond == 1){
-				alternator = 1 - alternator;
-				StarState[i] = 1 - StarState[i];
-			}
-			gfx_TransparentSprite(Star[StarState[i]], StarX[i], StarY[i]);
-		}
-		if(kb_ScanGroup(kb_group_7) == kb_Up || kb_ScanGroup(kb_group_7) == kb_Down)
-			Option = 1 - Option;
-		if(Option == 0){
-			Head1X = 67;
-			Head1Y = 75;
-			Head2X = 218;
-			Head2Y = 75;
-		} else if(Option == 1){
-			Head1X = 6;
-			Head1Y = 102;
-			Head2X = 280;
-			Head2Y = 102;
-		}
-		PrintCustomFontH(15, 0, "CATYLIZM", 5);
-		PrintCustomFontH(104, 84, "START", 3);
-		PrintCustomFontH(43, 111, "HOW TO PLAY", 3);	
-		PrintCustomFontH(25, 198, "PRESS CLEAR TO QUIT", 2);
-		gfx_ScaledTransparentSprite_NoClip(SpaceCatHead[0], Head1X, Head1Y, 2, 2);
-		gfx_ScaledTransparentSprite_NoClip(SpaceCatHead[1], Head2X, Head2Y, 2, 2);
-		if(kb_ScanGroup(kb_group_1) == kb_2nd || kb_ScanGroup(kb_group_6) == kb_Enter){
-			if(Option == 0){
-				Menu = 0;
-				GameOver = 0;
-			} else if(Option == 1){
-				Menu = 0;
-				Instructions = 1;
-			}
-		}
-		gfx_SwapDraw();
-	}
-}
-
-void Instruction(){				//Instruction screen
-		while(Instructions && kb_ScanGroup(kb_group_6) != kb_Clear){
-			gfx_FillScreen(0x26);
-			oldTime = time;
-			time = rtc_Time();
-			oneSecond = time - oldTime;
-			for(i = 0; i < 15; i++){
-				if(oneSecond == 1){
-					alternator = 1 - alternator;
-					StarState[i] = 1 - StarState[i];
-				}
-				gfx_TransparentSprite(Star[StarState[i]], StarX[i], StarY[i]);
-			}
-			PrintCustomFontH(15, 0, "CATYLIZM", 5);
-			PrintCustomFontH(4, 64, "USE THE LEFT AND RIGHT", 2);
-			PrintCustomFontH(19, 84, "ARROWS TO MOVE SPACE", 2);
-			PrintCustomFontH(0, 104, "CAT CARL THROUGH SPACE.", 2);
-			PrintCustomFontH(4, 124, "COLLECT COINS AND MICE", 2);
-			PrintCustomFontH(4, 144, "TO SCORE POINTS. AVOID", 2);
-			PrintCustomFontH(4, 164, "ASTEROIDS AND DONT RUN", 2);
-			PrintCustomFontH(82, 184, "OUT OF FUEL", 2);
-			PrintCustomFontH(91, 204, "GOOD LUCK.", 2);
-			gfx_SwapDraw();
-			if(kb_ScanGroup(kb_group_2) == kb_Alpha){
-				Instructions = 0;
-				Menu = 1;
-			}
-	}
-}
-
-void Game(){
-	while(GameOver == 0 && kb_ScanGroup(kb_group_6) != kb_Clear){
-		oldTime = time;
-		time = rtc_Time();
-		oneSecond = time - oldTime;
-		gfx_FillScreen(0x26);
-		StarFunctions();
-		ObjectFunctions();
-		if(FuelBar <= 0){
-			FuelBar = 0;
-			GameOver = 1;
-		}
-		if(HealthBar <= 0){
-			HealthBar = 0;
-			GameOver = 1;
-		}
-		gfx_ScaledTransparentSprite_NoClip(SpaceCat[RL], CatX, CatY, 2, 2);
-		drawBorder();
-		gfx_SwapDraw();
-	}
-	gfx_FillScreen(0x26);
-	StarFunctions();
-	ObjectFunctions();
-	gfx_ScaledTransparentSprite_NoClip(SpaceCat[RL], CatX, CatY, 2, 2);
-	drawBorder();
-	while(GameOver == 1 && kb_ScanGroup(kb_group_6) != kb_Clear){
-		oldTime = time;
-		time = rtc_Time();
-		oneSecond = time - oldTime;
-		gfx_FillScreen(0x26);
-		StarFunctions();
-		ObjectFunctions();
-		gfx_ScaledTransparentSprite_NoClip(SpaceCat[RL], CatX, CatY, 2, 2);
-		drawBorder();
-		PrintCustomFontH(0, 89, "GAME OVER", 5);
-		PrintCustomFontH(55, 129, "PRESS ALPHA FOR", 2);
-		PrintCustomFontH(96, 149, "MAIN MENU", 2);
-		if(kb_ScanGroup(kb_group_2) == kb_Alpha){
-			ResetVars();
-		}
-		gfx_SwapDraw();
-	}
-}
-
-void decompressSprites(){
-	int i;
-	
-	malloc(0);
-	
-	Asteroid = gfx_AllocSprite( 64, 64, malloc );
-	Coin = gfx_AllocSprite( 16, 34, malloc );
-	Fuel = gfx_AllocSprite( 28, 20, malloc );
-	Period = gfx_AllocSprite( 8, 9, malloc );
-	Colon = gfx_AllocSprite( 8, 9, malloc );
-	
-	for(i = 0; i < 2; i++){
-		SpaceCat[i] = gfx_AllocSprite( 22, 35, malloc );
-		Flame[i] = gfx_AllocSprite( 5, 5, malloc );
-		Star[i] = gfx_AllocSprite( 6, 6, malloc );
-		SpaceCatHead[i] = gfx_AllocSprite( 17, 17, malloc );
-		Mouse[i] = gfx_AllocSprite( 54, 42, malloc );
-	}
-	
-	for(i = 0; i < 26; i++)
-		Alphabet[i] = gfx_AllocSprite( 8, 9, malloc );
-	
-	for(i = 0; i < 10; i++)
-		Numbers[i] = gfx_AllocSprite( 8, 9, malloc );
-	
-	
-	gfx_LZDecompressSprite( Asteroid_data_compressed, Asteroid );
-	gfx_LZDecompressSprite( Coin_data_compressed, Coin );
-	gfx_LZDecompressSprite( Fuel_data_compressed, Fuel );
-	gfx_LZDecompressSprite( Period_data_compressed, Period );
-	gfx_LZDecompressSprite( Colon_data_compressed, Colon );
-	
-	for(i = 0; i < 2; i++){
-		gfx_LZDecompressSprite( SpaceCat_compressed[i], SpaceCat[i] );
-		gfx_LZDecompressSprite( Flame_compressed[i], Flame[i] );
-		gfx_LZDecompressSprite( Star_compressed[i], Star[i] );
-		gfx_LZDecompressSprite( SpaceCatHead_compressed[i], SpaceCatHead[i] );
-		gfx_LZDecompressSprite( Mouse_compressed[i], Mouse[i] );
-	}
-	
-	for(i = 0; i < 26; i++)
-		gfx_LZDecompressSprite( Alphabet_compressed[i], Alphabet[i] );
-	
-	for(i = 0; i < 10; i++)
-		gfx_LZDecompressSprite( Numbers_compressed[i], Numbers[i] );
-	
-}
-
-void freeSprites(){
-	int i;
-	
-	free(Asteroid);
-	free(Coin);
-	free(Fuel);
-	free(Period);
-	free(Colon);
-	
-	for(i = 0; i < 2; i++){
-		free(SpaceCat[i]);
-		free(Flame[i]);
-		free(Star[i]);
-		free(SpaceCatHead[i]);
-		free(Mouse[i]);
-	}
-	
-	for(i = 0; i < 26; i++)
-		free(Alphabet[i]);
-	
-	for(i = 0; i < 10; i++)
-		free(Numbers[i]);
-}
+// Global variables
+struct Star stars[30];
+struct Player p = { 138, 170, 200, 200, 0 };
+struct Object object;
+bool game_over = true;
+bool in_menu = true;
+bool in_instructions = false;
 
 int main(void) {
+	int i;
+	int old_time, time, one_second, alternator = 0;
+	int right_or_left = 0;
+	bool can_press = false;
+	int menu_option = 0;
+
+	int object_countdown = 0;
+
 	gfx_Begin(gfx_8bpp);
-	gfx_SetPalette(gfx_group_1_pal, sizeof(gfx_group_1_pal), 0);
+	gfx_SetPalette(palette, sizeof(palette), 0);
 	gfx_SetDrawBuffer();
-	decompressSprites();
-	ResetVars();
-	while(Menu == 1 || Instructions == 1 || GameOver == 0){
-		oldTime = time;
+
+	/* Set up the font */
+    gfx_SetFontData(font);
+    gfx_SetFontSpacing(font_spacing);
+	gfx_SetFontHeight(6);
+
+	gfx_SetTransparentColor(COLOR_RED);
+
+	init_game();
+	while (!(kb_Data[6] & kb_Clear)) {
+		kb_Scan();
+		old_time = time;
 		time = rtc_Time();
-		oneSecond = time - oldTime;
-		MainMenu();
-		Menu = 0;
-		Instruction();
-		Instructions = 0;
-		if(GameOver == 0)
-			Game();
+		one_second = time - old_time;
+		gfx_FillScreen(COLOR_BLACK);
+
+		for (i = 0; i < 30; i++) {
+			if (one_second)
+				stars[i].state = 1 - stars[i].state;
+			draw_star(stars[i]);
+		}
+
+		if (in_menu) {
+			int left_head_x = 82, left_head_y = 74, right_head_x = 204, right_head_y = 74;
+			if (can_press && (kb_Data[7] & kb_Up || kb_Data[7] & kb_Down)) {
+				menu_option = 1 - menu_option;
+				can_press = false;
+			}
+			if (menu_option == 0) {
+				left_head_x = 77;
+				left_head_y = 70;
+				right_head_x = 209;
+				right_head_y = 70;
+			} else if (menu_option == 1) {
+				left_head_x = 32;
+				left_head_y = 95;
+				right_head_x = 254;
+				right_head_y = 95;
+			}
+			draw_text("CATYLIZM", COLOR_WHITE, 60, 15, 5);
+			draw_text("START", COLOR_WHITE, 121, 84, 3);
+			draw_text("HOW TO PLAY", COLOR_WHITE, 76, 111, 3);	
+			draw_text("PRESS CLEAR TO QUIT", COLOR_WHITE, 65, 198, 2);
+			gfx_ScaledTransparentSprite_NoClip(cat_head, left_head_x, left_head_y, 2, 2);
+			gfx_sprite_t *cat_head2 = gfx_MallocSprite(17, 17);
+			gfx_FlipSpriteY(cat_head, cat_head2);
+			gfx_ScaledTransparentSprite_NoClip(cat_head2, right_head_x, right_head_y, 2, 2);
+			free(cat_head2);
+			if (can_press && (kb_Data[1] & kb_2nd || kb_Data[6] & kb_Enter)) {
+				if (menu_option == 0) {
+					in_menu = false;
+					game_over = false;
+				} else if (menu_option == 1) {
+					in_menu = false;
+					in_instructions = true;
+				}
+				can_press = false;
+			}
+		} else if (in_instructions) {
+			draw_text("CATYLIZM", COLOR_WHITE, 60, 15, 5);
+			draw_text("Use the left and right", COLOR_WHITE, 58, 64, 2);
+			draw_text("arrows to move space", COLOR_WHITE, 62, 84, 2);
+			draw_text("cat Carl through space.", COLOR_WHITE, 51, 104, 2);
+			draw_text("Collect coins and mice", COLOR_WHITE, 58, 124, 2);
+			draw_text("to score points. Avoid", COLOR_WHITE, 63, 144, 2);
+			draw_text("asteroids and don't run", COLOR_WHITE, 56, 164, 2);
+			draw_text("out of fuel.", COLOR_WHITE, 110, 184, 2);
+			draw_text("Good luck.", COLOR_WHITE, 113, 204, 2);
+			if (can_press && (kb_Data[2] & kb_Alpha || kb_Data[1] & kb_2nd || kb_Data[6] & kb_Enter)) {
+				in_instructions = false;
+				in_menu = true;
+				can_press = false;
+			}
+		} else {
+			if (one_second) {
+				alternator = 1 - alternator;
+				object_countdown--;
+			}
+
+			for (i = 0; i < 30; i++) {
+				if (stars[i].y < 240)
+					stars[i].y += 8;
+				else {
+					stars[i].x = rand() % 320;
+					stars[i].y = 0;
+				}
+			}
+
+			if ((p.x < object.x + object.width) && (p.x + 40 > object.x) && (p.y < object.y + object.height) && (70 + p.y > object.y) && object.alive) {
+				switch (object.type) {
+					case OBJECT_GOLD_NUGGET:
+						p.score++;
+						break;
+					case OBJECT_FUEL_CELL:
+						p.fuel += 50;
+						break;
+					case OBJECT_BIG_ASTEROID:
+						p.health -= 25;
+						break;
+					case OBJECT_SMALL_ASTEROID:
+						p.health -= 10;
+						break;
+					case OBJECT_SPACE_MOUSE:
+						p.score += 5;
+						break;
+				}
+				object.alive = false;
+				object_countdown = rand() % 3 + 3;
+			}
+			if (object.y < (240 - object.height) && object.x < (320 - object.width) && object.x > 0 && object.alive) {
+				draw_object(object);
+				object.y += 4;
+			}
+			if (object_countdown == 0) {
+				init_object(&object);
+				object_countdown = rand() % 3 + 3;
+			}
+
+			if (p.fuel > 0) {
+				if (kb_Data[7] & kb_Left) {
+						right_or_left = 1;
+						for (i = 0; i < 30; i++)
+							stars[i].x += 4;
+						object.x += 2;
+				} else if (kb_Data[7] & kb_Right) {
+						right_or_left = 0;
+						for (i = 0; i < 30; i++)
+							stars[i].x -= 4;
+						object.x -= 2;
+				}
+				p.fuel -= .25;
+			}
+			if (p.fuel > 200)
+				p.fuel = 200;
+			if (p.fuel <= 0) {
+				p.fuel = 0;
+				game_over = true;
+			}
+			if (p.health <= 0) {
+				p.health = 0;
+				game_over = true;
+			}
+			gfx_sprite_t *flipped_cat = gfx_MallocSprite(20, 35);
+			gfx_FlipSpriteY(cat, flipped_cat);
+			gfx_ScaledTransparentSprite_NoClip((right_or_left ? flipped_cat : cat), p.x, p.y, 2, 2);
+			free(flipped_cat);
+			//gfx_ScaledTransparentSprite_NoClip(Flame[alternator], p.x + ((right_or_left == 0) ? 0 : 30), p.y + 60, 2, 2);
+			draw_game_border();
+			if (game_over) {
+				draw_text("GAME OVER", COLOR_WHITE, 47, 89, 5);
+				draw_text("PRESS ALPHA FOR", COLOR_WHITE, 86, 129, 2);
+				draw_text("MAIN MENU", COLOR_WHITE, 115, 149, 2);
+				if (kb_Data[2] & kb_Alpha) {
+					init_game();
+				}
+			}
+		}
+		if (!kb_AnyKey())
+			can_press = true;
+		gfx_SwapDraw();
 	}
-	freeSprites();
+
 	gfx_End();
 	pgrm_CleanUp();
 	return 0;
+}
+
+void draw_text(char* text, uint8_t color, uint16_t x, uint8_t y, int scale) {
+	gfx_SetTextFGColor(color);
+    gfx_SetTextBGColor(COLOR_RED);
+    gfx_SetTextTransparentColor(COLOR_RED);
+    gfx_SetTextXY(x, y);
+	gfx_SetTextScale(scale, scale);
+	gfx_PrintString(text);
+}
+
+void draw_int(int i, uint8_t color, uint16_t x, uint8_t y, int scale) {
+	gfx_SetTextFGColor(color);
+    gfx_SetTextBGColor(COLOR_RED);
+    gfx_SetTextTransparentColor(COLOR_RED);
+    gfx_SetTextXY(x, y);
+	gfx_SetTextScale(scale, scale);
+	gfx_PrintInt(i, 1);
+}
+
+void draw_text_v(char *text, uint8_t color, uint16_t x, uint8_t y, int scale) {
+	uint8_t i;
+	
+	gfx_SetTextFGColor(color);
+    gfx_SetTextBGColor(COLOR_RED);
+    gfx_SetTextTransparentColor(COLOR_RED);
+	gfx_SetTextScale(scale, scale);
+
+	for (i = 0; i < strlen(text); i++) {
+		gfx_SetTextXY(x, y + (i * 6 * scale));
+		gfx_PrintChar(text[i]);
+	}
+}
+
+void init_object(struct Object *o) {
+	o->alive = true;
+	o->type = rand() % 5;
+	switch (o->type) {
+		case OBJECT_BIG_ASTEROID:
+			o->width = BIG_ASTEROID_WIDTH;
+			o->height = BIG_ASTEROID_HEIGHT;
+			break;
+		case OBJECT_SMALL_ASTEROID:
+			o->width = SMALL_ASTEROID_WIDTH;
+			o->height = SMALL_ASTEROID_HEIGHT;
+			break;
+		case OBJECT_FUEL_CELL:
+			o->width = FUEL_CELL_WIDTH;
+			o->height = FUEL_CELL_HEIGHT;
+			break;
+		case OBJECT_GOLD_NUGGET:
+			o->width = GOLD_NUGGET_WIDTH;
+			o->height = GOLD_NUGGET_HEIGHT;
+			break;
+		case OBJECT_SPACE_MOUSE:
+			o->width = SPACE_MOUSE_WIDTH;
+			o->height = SPACE_MOUSE_HEIGHT;
+			break;
+		default:
+			break;
+	}
+	o->x = rand() % (320 - o->width);
+	o->y = 0;
+}
+
+void init_game() {
+	int i;
+	srand((unsigned) rtc_Time());
+	p.score = 0;
+	p.fuel = 200;
+	p.health = 200;
+	for (i = 0; i < 30; i++)
+	{
+		stars[i].x = rand() % 320;
+		stars[i].y = rand() % 240;
+		stars[i].state = rand() % 2;
+		stars[i].scale = rand() % 2 + 1;
+	}
+	init_object(&object);
+	game_over = true;
+	in_menu = true;
+	in_instructions = false;
+}
+
+void draw_game_border() {					//Draw fuel bar, health bar, and the p.score
+	gfx_SetColor(COLOR_GRAY);
+	gfx_FillRectangle_NoClip(0, 0, 36, 240);
+	gfx_SetColor(COLOR_WHITE);
+	gfx_VertLine_NoClip(35, 0, 240);
+	gfx_SetColor(COLOR_DARK_GRAY);
+	gfx_VertLine_NoClip(36, 0, 240);
+	draw_text_v("FUEL", COLOR_BLACK, 13, 10, 2);
+	gfx_SetColor(COLOR_BLACK);
+	gfx_FillRectangle_NoClip(11, 71, 12, 134);
+	if (p.fuel > 0) {
+		gfx_SetColor(COLOR_GREEN);
+		gfx_FillRectangle_NoClip(12, 72, 10, (int)(p.fuel*0.66));
+	}
+	gfx_SetColor(COLOR_GRAY);
+	gfx_FillRectangle_NoClip(284, 0, 36, 240);
+	gfx_SetColor(COLOR_WHITE);
+	gfx_VertLine_NoClip(285, 0, 240);
+	gfx_SetColor(COLOR_DARK_GRAY);
+	gfx_VertLine_NoClip(284, 0, 240);
+	draw_text_v("HEALTH", COLOR_BLACK, 297, 10, 2);
+	gfx_SetColor(COLOR_BLACK);
+	gfx_FillRectangle_NoClip(295, 100, 12, 106);
+	if (p.health > 0) {
+		gfx_SetColor(COLOR_RED);
+		gfx_FillRectangle_NoClip(296, 101, 10, (int)(p.health*0.52));
+	}
+	draw_text("SCORE:", COLOR_WHITE, 38, 222, 2);
+	draw_int(p.score, COLOR_WHITE, 96, 222, 2);
+}
+
+/* draw_star()
+ * Draws a star
+ *
+ * Parameters:
+ * 		s: Conatains the star's x and y coordinates, its state, and its scale
+ */
+void draw_star(struct Star s) {
+	gfx_SetColor(COLOR_WHITE);
+	if (s.state == 1) {
+		gfx_FillRectangle(s.x + s.scale, s.y + s.scale, s.scale, s.scale);
+	} else {
+		gfx_FillRectangle(s.x, s.y + s.scale, s.scale, s.scale);
+		gfx_FillRectangle(s.x + s.scale, s.y, s.scale, s.scale);
+		gfx_FillRectangle(s.x + s.scale, s.y + s.scale * 2, s.scale, s.scale);
+		gfx_FillRectangle(s.x + s.scale * 2, s.y + s.scale, s.scale, s.scale);
+	}
+}
+
+/* draw_object()
+ * Draws an object
+ *
+ * Parameters:
+ * 		o: Contains the object's x and y coordinates, its width, height, and type
+ */
+void draw_object(struct Object o) {
+	switch (o.type) {
+		case OBJECT_BIG_ASTEROID:
+			gfx_ScaledTransparentSprite_NoClip(big_asteroid, o.x, o.y, 3, 3);
+			break;
+		case OBJECT_SMALL_ASTEROID:
+			gfx_ScaledTransparentSprite_NoClip(small_asteroid, o.x, o.y, 3, 3);
+			break;
+		case OBJECT_FUEL_CELL:
+			gfx_ScaledTransparentSprite_NoClip(fuel_cell, o.x, o.y, 2, 2);
+			break;
+		case OBJECT_GOLD_NUGGET:
+			gfx_ScaledTransparentSprite_NoClip(gold_nugget, o.x, o.y, 2, 2);
+			break;
+		case OBJECT_SPACE_MOUSE:
+			gfx_ScaledTransparentSprite_NoClip(full_mouse, o.x, o.y, 2, 2);
+			break;
+		
+		default:
+			break;
+	}
 }
