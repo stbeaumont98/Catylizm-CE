@@ -5,11 +5,11 @@
 extern "C" {
 #endif
 
-#define small_asteroid_width 11
-#define small_asteroid_height 11
-#define small_asteroid_size 123
-#define small_asteroid ((gfx_sprite_t*)small_asteroid_data)
-extern unsigned char small_asteroid_data[123];
+#define small_asteroid_width 33
+#define small_asteroid_height 33
+#define small_asteroid_size 1091
+#define small_asteroid_compressed_size 117
+extern unsigned char small_asteroid_compressed[117];
 
 #ifdef __cplusplus
 }

@@ -5,11 +5,11 @@
 extern "C" {
 #endif
 
-#define gold_nugget_width 8
-#define gold_nugget_height 8
-#define gold_nugget_size 66
-#define gold_nugget ((gfx_sprite_t*)gold_nugget_data)
-extern unsigned char gold_nugget_data[66];
+#define gold_nugget_width 16
+#define gold_nugget_height 16
+#define gold_nugget_size 258
+#define gold_nugget_compressed_size 61
+extern unsigned char gold_nugget_compressed[61];
 
 #ifdef __cplusplus
 }

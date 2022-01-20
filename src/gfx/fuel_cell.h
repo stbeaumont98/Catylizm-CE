@@ -5,11 +5,11 @@
 extern "C" {
 #endif
 
-#define fuel_cell_width 14
-#define fuel_cell_height 10
-#define fuel_cell_size 142
-#define fuel_cell ((gfx_sprite_t*)fuel_cell_data)
-extern unsigned char fuel_cell_data[142];
+#define fuel_cell_width 28
+#define fuel_cell_height 20
+#define fuel_cell_size 562
+#define fuel_cell_compressed_size 97
+extern unsigned char fuel_cell_compressed[97];
 
 #ifdef __cplusplus
 }
