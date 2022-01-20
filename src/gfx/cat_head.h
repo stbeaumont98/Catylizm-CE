@@ -8,8 +8,8 @@ extern "C" {
 #define cat_head_width 17
 #define cat_head_height 17
 #define cat_head_size 291
-#define cat_head ((gfx_sprite_t*)cat_head_data)
-extern unsigned char cat_head_data[291];
+#define cat_head_compressed_size 114
+extern unsigned char cat_head_compressed[114];
 
 #ifdef __cplusplus
 }

@@ -14,8 +14,7 @@ extern "C" {
 #include "full_mouse.h"
 #include "cat.h"
 #include "cat_head.h"
-#include "flame_1.h"
-#include "flame_2.h"
+#include "flame.h"
 
 #ifdef __cplusplus
 }

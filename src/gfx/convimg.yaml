@@ -20,8 +20,8 @@ converts:
       - full_mouse.png
       - cat.png
       - cat_head.png
-      - flame_1.png
-      - flame_2.png
+      - flame.png
+    compress: zx7
 
 outputs:
   - type: c
