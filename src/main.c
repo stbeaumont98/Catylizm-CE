@@ -9,6 +9,7 @@
 #include <string.h>
 #include <graphx.h>
 #include <keypadc.h>
+#include <compression.h>
 
 #include "gfx\gfx.h"
 #include "gfx\font.h"
@@ -26,12 +27,12 @@
 #define OBJECT_GOLD_NUGGET 3
 #define OBJECT_SPACE_MOUSE 4
 
-#define BIG_ASTEROID_WIDTH 32
-#define BIG_ASTEROID_HEIGHT 32
-#define SMALL_ASTEROID_WIDTH 22
-#define SMALL_ASTEROID_HEIGHT 22
-#define FUEL_CELL_WIDTH 14
-#define FUEL_CELL_HEIGHT 10
+#define BIG_ASTEROID_WIDTH 48
+#define BIG_ASTEROID_HEIGHT 48
+#define SMALL_ASTEROID_WIDTH 33
+#define SMALL_ASTEROID_HEIGHT 33
+#define FUEL_CELL_WIDTH 28
+#define FUEL_CELL_HEIGHT 20
 #define GOLD_NUGGET_WIDTH 16
 #define GOLD_NUGGET_HEIGHT 16
 #define SPACE_MOUSE_WIDTH 52
@@ -47,7 +48,7 @@ struct Star {
 struct Object {
 	uint8_t type;
 	uint16_t x;
-	uint8_t y;
+	int16_t y;
 	uint8_t width;
 	uint8_t height;
 	bool alive;
@@ -79,12 +80,40 @@ bool game_over = true;
 bool in_menu = true;
 bool in_instructions = false;
 
+gfx_sprite_t *cat;
+gfx_sprite_t *cat_head;
+gfx_sprite_t *flame;
+
+gfx_sprite_t *big_asteroid;
+gfx_sprite_t *small_asteroid;
+gfx_sprite_t *fuel_cell;
+gfx_sprite_t *gold_nugget;
+gfx_sprite_t *full_mouse;
+
 int main(void) {
 	int i;
 	int old_time, time, one_second, alternator = 0;
 	int right_or_left = 0;
 	bool can_press = false;
 	int menu_option = 0;
+
+	cat = gfx_MallocSprite(20, 35);
+	zx7_Decompress(cat, cat_compressed);
+	cat_head = gfx_MallocSprite(17, 17);
+	zx7_Decompress(cat_head, cat_head_compressed);
+	flame = gfx_MallocSprite(4, 4);
+	zx7_Decompress(flame, flame_compressed);
+
+	big_asteroid = gfx_MallocSprite(BIG_ASTEROID_WIDTH, BIG_ASTEROID_HEIGHT);
+	zx7_Decompress(big_asteroid, big_asteroid_compressed);
+	small_asteroid = gfx_MallocSprite(SMALL_ASTEROID_WIDTH, SMALL_ASTEROID_HEIGHT);
+	zx7_Decompress(small_asteroid, small_asteroid_compressed);
+	fuel_cell = gfx_MallocSprite(FUEL_CELL_WIDTH, FUEL_CELL_HEIGHT);
+	zx7_Decompress(fuel_cell, fuel_cell_compressed);
+	gold_nugget = gfx_MallocSprite(GOLD_NUGGET_WIDTH, GOLD_NUGGET_HEIGHT);
+	zx7_Decompress(gold_nugget, gold_nugget_compressed);
+	full_mouse = gfx_MallocSprite(SPACE_MOUSE_WIDTH, SPACE_MOUSE_HEIGHT);
+	zx7_Decompress(full_mouse, full_mouse_compressed);
 
 	int object_countdown = 0;
 
@@ -171,9 +200,9 @@ int main(void) {
 			}
 
 			for (i = 0; i < 30; i++) {
-				if (stars[i].y < 240)
+				if (stars[i].y < 240 && !game_over)
 					stars[i].y += 8;
-				else {
+				else if (stars[i].y >= 240) {
 					stars[i].x = rand() % 320;
 					stars[i].y = 0;
 				}
@@ -200,9 +229,10 @@ int main(void) {
 				object.alive = false;
 				object_countdown = rand() % 3 + 3;
 			}
-			if (object.y < (240 - object.height) && object.x < (320 - object.width) && object.x > 0 && object.alive) {
+			if (object.y < 240 && object.x < 320 && object.x > 0 && object.alive) {
 				draw_object(object);
-				object.y += 4;
+				if (!game_over)
+					object.y += 4;
 			}
 			if (object_countdown == 0) {
 				init_object(&object);
@@ -214,12 +244,12 @@ int main(void) {
 						right_or_left = 1;
 						for (i = 0; i < 30; i++)
 							stars[i].x += 4;
-						object.x += 2;
+						object.x += 3;
 				} else if (kb_Data[7] & kb_Right) {
 						right_or_left = 0;
 						for (i = 0; i < 30; i++)
 							stars[i].x -= 4;
-						object.x -= 2;
+						object.x -= 3;
 				}
 				p.fuel -= .25;
 			}
@@ -237,7 +267,10 @@ int main(void) {
 			gfx_FlipSpriteY(cat, flipped_cat);
 			gfx_ScaledTransparentSprite_NoClip((right_or_left ? flipped_cat : cat), p.x, p.y, 2, 2);
 			free(flipped_cat);
-			//gfx_ScaledTransparentSprite_NoClip(Flame[alternator], p.x + ((right_or_left == 0) ? 0 : 30), p.y + 60, 2, 2);
+			gfx_sprite_t *flipped_flame = gfx_MallocSprite(4, 4);
+			gfx_FlipSpriteY(flame, flipped_flame);
+			gfx_ScaledTransparentSprite_NoClip(alternator ? flame : flipped_flame, p.x + (right_or_left ? 32 : 0), p.y + 60, 2, 2);
+			free(flipped_flame);
 			draw_game_border();
 			if (game_over) {
 				draw_text("GAME OVER", COLOR_WHITE, 47, 89, 5);
@@ -252,6 +285,15 @@ int main(void) {
 			can_press = true;
 		gfx_SwapDraw();
 	}
+	free(cat);
+	free(cat_head);
+	free(flame);
+
+	free(big_asteroid);
+	free(small_asteroid);
+	free(gold_nugget);
+	free(fuel_cell);
+	free(full_mouse);
 
 	gfx_End();
 	pgrm_CleanUp();
@@ -318,7 +360,7 @@ void init_object(struct Object *o) {
 			break;
 	}
 	o->x = rand() % (320 - o->width);
-	o->y = 0;
+	o->y = -o->height;
 }
 
 void init_game() {
@@ -398,19 +440,19 @@ void draw_star(struct Star s) {
 void draw_object(struct Object o) {
 	switch (o.type) {
 		case OBJECT_BIG_ASTEROID:
-			gfx_ScaledTransparentSprite_NoClip(big_asteroid, o.x, o.y, 3, 3);
+			gfx_TransparentSprite(big_asteroid, o.x, o.y);
 			break;
 		case OBJECT_SMALL_ASTEROID:
-			gfx_ScaledTransparentSprite_NoClip(small_asteroid, o.x, o.y, 3, 3);
+			gfx_TransparentSprite(small_asteroid, o.x, o.y);
 			break;
 		case OBJECT_FUEL_CELL:
-			gfx_ScaledTransparentSprite_NoClip(fuel_cell, o.x, o.y, 2, 2);
+			gfx_TransparentSprite(fuel_cell, o.x, o.y);
 			break;
 		case OBJECT_GOLD_NUGGET:
-			gfx_ScaledTransparentSprite_NoClip(gold_nugget, o.x, o.y, 2, 2);
+			gfx_TransparentSprite(gold_nugget, o.x, o.y);
 			break;
 		case OBJECT_SPACE_MOUSE:
-			gfx_ScaledTransparentSprite_NoClip(full_mouse, o.x, o.y, 2, 2);
+			gfx_TransparentSprite(full_mouse, o.x, o.y);
 			break;
 		
 		default:
