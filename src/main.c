@@ -195,7 +195,6 @@ int main(void) {
 			}
 		} else {
 			if (one_second) {
-				alternator = 1 - alternator;
 				object_countdown--;
 			}
 
@@ -280,6 +279,9 @@ int main(void) {
 					init_game();
 				}
 			}
+			
+			if (rand() & 1)
+				alternator = 1 - alternator;
 		}
 		if (!kb_AnyKey())
 			can_press = true;
